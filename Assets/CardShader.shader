@@ -24,6 +24,7 @@
 			#include "UnityCG.cginc"
 
 			#define DIRECTX
+			#define ZERO2 float2(0.0, 0.0)
 
 			struct appdata
 			{
@@ -81,6 +82,12 @@
 			fixed4 platformTex(sampler2D tex, float2 uv) {
 				return tex2D(tex, platformUV(uv));
 			}
+
+			float2 calcUV(float2 uv, float2 origin, float2 pos, float scale, float angle, float2 dtVec, float dtAngle, float time) {
+				float2 scrollUV = uv - dtVec * time;
+				float2 rotateUV = rotate(scrollUV - pos, angle + time * dtAngle) * scale + origin;
+				return rotateUV;
+			}
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
@@ -95,23 +102,23 @@
 				fixed4 card_col = platformTex(_MainTex, card_uv);
 
 				// エフェクト1(桜)を取得する
-				float2 effect1_uv  = uv * 1.0 + normalize(float2(-0.5, -0.5)) * time * 0.25;				// スクロール
+				float2 effect1_uv = calcUV(uv, ZERO2, ZERO2, 1.0, 0.0, normalize(float2(0.5, 0.5)) * 0.25, 0.0, time);	// スクロール
 				fixed4 effect1 = platformTex(_Blend1Tex, effect1_uv);
 
 				// エフェクト2(桜)を取得する
-				float2 effect2_uv = rotate((uv - float2(2.0, 0.0)) * 2.0, time * 0.1);						// 回転
+				float2 effect2_uv = calcUV(uv, ZERO2, float2(2.0, 0.0), 2.0, 0.0, ZERO2, 0.1, time);					// 回転
 				float4 effect2 = platformTex(_Blend1Tex, effect2_uv);
 
 				// エフェクト3(キラキラ)を取得する
-				float2 effect3_uv  = uv * 1.0 + normalize(float2(1.0, 0.0)) * time * 0.01;					// スクロール
+				float2 effect3_uv = calcUV(uv, ZERO2, ZERO2, 1.0, 0.0, float2(-0.01, 0.0), 0.0, time);					// スクロール
 				fixed4 effect3 = platformTex(_Blend2Tex, effect3_uv);
 
 				// エフェクト4(太陽)を取得する
-				float2 effect4_uv = rotate(uv + float2(0.1, 0.1), time * 0.2) * 0.5 + float2(0.5, 0.5);		// 回転 + 原点移動
+				float2 effect4_uv = calcUV(uv, float2(0.5, 0.5), float2(-0.1, -0.1), 0.5, 0.0, ZERO2, 0.2, time);		// 回転 + 原点移動
 				float4 effect4 = pow(platformTex(_Blend3Tex, effect4_uv) * 6.0, 3.0);
 				
 				// エフェクト5(フレア)を取得する
-				float2 effect5_uv = uv;																		// 通常
+				float2 effect5_uv = calcUV(uv, ZERO2, ZERO2, 1.0, 0.0, ZERO2, 0.0, time);								// 通常
 				float4 effect5 = platformTex(_Blend4Tex, effect5_uv);
 
 				fixed4 result = card_col;
