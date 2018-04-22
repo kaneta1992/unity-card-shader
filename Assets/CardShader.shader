@@ -84,9 +84,12 @@
 			}
 
 			float2 calcUV(float2 uv, float2 origin, float2 pos, float scale, float angle, float2 dtVec, float dtAngle, float time) {
-				float2 scrollUV = uv - dtVec * time;
-				float2 rotateUV = rotate(scrollUV - pos, angle + time * dtAngle) * scale + origin;
-				return rotateUV;
+				//float a = angle + dtAngle * time;
+				//float2 vec = rotate(dtVec * time, -a);
+				//float2 scrollUV = uv - dtVec;
+				//float2 rotateUV = rotate(scrollUV - pos, a) * scale + origin;
+				//return rotateUV;
+				return rotate(uv - pos, angle + dtAngle * time) * scale + origin - dtVec * time;
 			}
 			
 			fixed4 frag (v2f i) : SV_Target
