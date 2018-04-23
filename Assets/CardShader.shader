@@ -91,6 +91,20 @@
 				//return rotateUV;
 				return rotate(uv - pos, angle + dtAngle * time) * scale + origin - dtVec * time;
 			}
+
+			float pulse(float2 uv, float freq, float2 pulsePhase, float offset, float power) {
+				float s = sin(_Time.y * freq + uv.x * pulsePhase.x + uv.y * pulsePhase.y) * 0.5 + 0.5;
+				return offset + s * power;
+			}
+
+			fixed3 blendColor(fixed3 src, fixed4 dest, float blend, float4 type) {
+				fixed3 blendedDest = dest.rgb * dest.a * blend;
+				fixed3 lerpCol = lerp(src, dest, dest.a * blend);
+				fixed3 addCol  = src + blendedDest;
+				fixed3 subCol  = src - blendedDest;
+				fixed3 mulCol  = src * blendedDest;
+				return lerpCol * type.r + addCol * type.g + subCol * type.b + mulCol * type.a;
+			}
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
@@ -118,30 +132,30 @@
 
 				// エフェクト4(太陽)を取得する
 				float2 effect4_uv = calcUV(uv, float2(0.5, 0.5), float2(-0.1, -0.1), 0.5, 0.0, ZERO2, 0.2, time);		// 回転 + 原点移動
-				float4 effect4 = pow(platformTex(_Blend3Tex, effect4_uv) * 6.0, 3.0);
+				float4 effect4 = saturate(pow(platformTex(_Blend3Tex, effect4_uv) * 6.0, 3.0));
 				
 				// エフェクト5(フレア)を取得する
 				float2 effect5_uv = calcUV(uv, ZERO2, ZERO2, 1.0, 0.0, ZERO2, 0.0, time);								// 通常
 				float4 effect5 = platformTex(_Blend4Tex, effect5_uv);
 
-				fixed4 result = card_col;
+				fixed3 result = card_col.rgb;
 
 				// エフェクト1を合成する
-				result.rgb = lerp(result.rgb, effect1.rgb, effect1.a * mask1);						// ブレンド
+				result = blendColor(result, effect1 * pulse(uv, 0.0, ZERO2, 1.0, 0.0), mask1, float4(1.0, 0.0, 0.0, 0.0));				// ブレンド
 
 				// エフェクト2を合成する
-				result.rgb = lerp(result.rgb, effect2.rgb, effect2.a * mask1);						// ブレンド
+				result = blendColor(result, effect2 * pulse(uv, 0.0, ZERO2, 1.0, 0.0), mask1, float4(1.0, 0.0, 0.0, 0.0));				// ブレンド
 				
 				// エフェクト3を合成する
-				result.rgb += effect3.rgb * mask1 * (2.0 + sin(time * 5.0 + uv.x * 10.0)) * 0.5;	//加算 + パルス
+				result = blendColor(result, effect3 * pulse(uv, 5.0, float2(10.0, 0.0), 0.5, 1.0), mask1, float4(0.0, 1.0, 0.0, 0.0));	//加算 + パルス
 								
 				// エフェクト4を合成する
-				result.rgb += effect4.rgb * mask1;													//加算
+				result = blendColor(result, effect4 * pulse(uv, 0.0, ZERO2, 1.0, 0.0), mask1, float4(0.0, 1.0, 0.0, 0.0));				//加算
 								
 				// エフェクト5を合成する
-				result.rgb += effect5.rgb * 1.0 * (1.0 + (2.0 + sin(time * 25.0)) * 0.05);			//加算 + パルス
+				result = blendColor(result, effect5 * pulse(uv, 25.0, ZERO2, 1.0, 0.05), 1.0, float4(0.0, 1.0, 0.0, 0.0));				//加算 + パルス
 
-				return result;
+				return fixed4(result, 1.0);
 			}
 			ENDCG
 		}
