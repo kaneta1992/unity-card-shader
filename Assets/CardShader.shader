@@ -69,7 +69,9 @@
 			}
 
 			float2 rotate(float2 pos, float angle) {
-				return float2(cos(angle) * pos.x - sin(angle) * pos.y, sin(angle) * pos.x + cos(angle) * pos.y);
+				float s = sin(angle);
+				float c = cos(angle);
+				return mul(float2x2(c, -s, s, c), pos);
 			}
 
 			float2 platformUV(float2 uv) {
