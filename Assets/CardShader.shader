@@ -100,12 +100,10 @@
 			}
 
 			fixed3 blendColor(fixed3 src, fixed4 dest, float blend, float4 type) {
-				fixed3 blendedDest = dest.rgb * dest.a * blend;
-				fixed3 lerpCol = lerp(src, dest, dest.a * blend);
-				fixed3 addCol  = src + blendedDest;
-				fixed3 subCol  = src - blendedDest;
-				fixed3 mulCol  = src * blendedDest;
-				return lerpCol * type.r + addCol * type.g + subCol * type.b + mulCol * type.a;
+				float alpha = dest.a * blend;
+				fixed3 blendedDest = dest.rgb * alpha;
+				float4x4 mat = float4x4(lerp(src, dest, alpha), 0, src + blendedDest, 0, src - blendedDest, 0, src * blendedDest, 0);	// GLESでは非正方行列が使えないらしい；；
+				return mul(type, mat);
 			}
 			
 			fixed4 frag (v2f i) : SV_Target
