@@ -14,7 +14,22 @@ public class CardShaderInspector : MaterialEditor
         }
     }
 
+    static bool[] showEffectSettings = { false, false, false, false };
 
+    private void buildEffectPropertiesLayout(int index)
+    {
+        string numberString = (index + 1).ToString();
+        showEffectSettings[index] = EditorGUILayout.Foldout(showEffectSettings[index], "Effect" + numberString);
+        if (showEffectSettings[index])
+        {
+
+            // 1段下げてUIを表示
+            EditorGUI.indentLevel = 1;
+            MaterialProperty prop = GetMaterialProperty(targets, "_Blend" + numberString + "Tex");
+            TextureProperty(prop, "Texture(RGBA)", true);
+            EditorGUI.indentLevel = 0;
+        }
+    }
 
     // Inspectorに表示される内容
     public override void OnInspectorGUI()
@@ -29,17 +44,11 @@ public class CardShaderInspector : MaterialEditor
         MaterialProperty mask2 = GetMaterialProperty(targets, "_Mask2Tex");
         TextureProperty(mask2, "Mask2", false);
 
-        MaterialProperty effect1 = GetMaterialProperty(targets, "_Blend1Tex");
-        TextureProperty(effect1, "Effect1", true);
+        for(int i = 0; i < 4; i++)
+        {
+            buildEffectPropertiesLayout(i);
+        }
 
-        MaterialProperty effect2 = GetMaterialProperty(targets, "_Blend2Tex");
-        TextureProperty(effect2, "Effect2", true);
-
-        MaterialProperty effect3 = GetMaterialProperty(targets, "_Blend3Tex");
-        TextureProperty(effect3, "Effect3", true);
-
-        MaterialProperty effect4 = GetMaterialProperty(targets, "_Blend4Tex");
-        TextureProperty(effect4, "Effect4", true);
 
         if (EditorGUI.EndChangeCheck())
         {
