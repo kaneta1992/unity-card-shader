@@ -9,6 +9,7 @@
 		_Blend2Tex ("Blend2", 2D) = "white" {}
 		_Blend3Tex ("Blend3", 2D) = "white" {}
 		_Blend4Tex ("Blend4", 2D) = "white" {}
+		_Blend5Tex ("Blend5", 2D) = "white" {}
 	}
 	SubShader
 	{
@@ -39,13 +40,10 @@
 			};
 
 			sampler2D _MainTex;
-			float4 _MainTex_ST;
 
 			sampler2D _Mask1Tex;
-			float4 _Mask1Tex_ST;
 
 			sampler2D _Mask2Tex;
-			float4 _Mask2Tex_ST;
 
 			sampler2D _Blend1Tex;
 			float4 _Blend1Tex_ST;
@@ -58,6 +56,9 @@
 
 			sampler2D _Blend4Tex;
 			float4 _Blend4Tex_ST;
+
+			sampler2D _Blend5Tex;
+			float4 _Blend5Tex_ST;
 			
 			v2f vert (appdata v)
 			{
@@ -123,19 +124,19 @@
 
 				// エフェクト2(桜)を取得する
 				float2 effect2_uv = calcUV(uv, ZERO2, float2(2.0, 0.0), 2.0, 0.0, ZERO2, 0.1, time);					// 回転
-				float4 effect2 = platformTex(_Blend1Tex, effect2_uv);
+				float4 effect2 = platformTex(_Blend2Tex, effect2_uv);
 
 				// エフェクト3(キラキラ)を取得する
 				float2 effect3_uv = calcUV(uv, ZERO2, ZERO2, 1.0, 0.0, float2(-0.01, 0.0), 0.0, time);					// スクロール
-				fixed4 effect3 = platformTex(_Blend2Tex, effect3_uv);
+				fixed4 effect3 = platformTex(_Blend3Tex, effect3_uv);
 
 				// エフェクト4(太陽)を取得する
 				float2 effect4_uv = calcUV(uv, float2(0.5, 0.5), float2(-0.1, -0.1), 0.5, 0.0, ZERO2, 0.2, time);		// 回転 + 原点移動
-				float4 effect4 = saturate(pow(platformTex(_Blend3Tex, effect4_uv) * 6.0, 3.0));
+				float4 effect4 = saturate(pow(platformTex(_Blend4Tex, effect4_uv) * 6.0, 3.0));
 				
 				// エフェクト5(フレア)を取得する
 				float2 effect5_uv = calcUV(uv, ZERO2, ZERO2, 1.0, 0.0, ZERO2, 0.0, time);								// 通常
-				float4 effect5 = platformTex(_Blend4Tex, effect5_uv);
+				float4 effect5 = platformTex(_Blend5Tex, effect5_uv);
 
 				fixed3 result = card_col.rgb;
 

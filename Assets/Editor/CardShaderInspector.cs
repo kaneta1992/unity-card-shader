@@ -14,7 +14,7 @@ public class CardShaderInspector : MaterialEditor
         }
     }
 
-    static bool[] showEffectSettings = { false, false, false, false };
+    static bool[] showEffectSettings = { false, false, false, false, false };
 
     private void buildEffectPropertiesLayout(int index)
     {
@@ -44,7 +44,7 @@ public class CardShaderInspector : MaterialEditor
         MaterialProperty mask2 = GetMaterialProperty(targets, "_Mask2Tex");
         TextureProperty(mask2, "Mask2", false);
 
-        for(int i = 0; i < 4; i++)
+        for(int i = 0; i < 5; i++)
         {
             buildEffectPropertiesLayout(i);
         }
