@@ -2,7 +2,7 @@
 {
 	Properties
 	{
-		[NoScaleOffset]_MainTex ("Card", 2D) = "white" {}
+		[NoScaleOffset] _MainTex ("Card", 2D) = "white" {}
 		[NoScaleOffset] _Mask1Tex ("Mask1", 2D) = "white" {}
 		[NoScaleOffset] _Mask2Tex ("Mask2", 2D) = "white" {}
 		_Blend1Tex ("Blend1", 2D) = "white" {}
@@ -159,4 +159,5 @@
 			ENDCG
 		}
 	}
+	CustomEditor "CardShaderInspector"
 }
