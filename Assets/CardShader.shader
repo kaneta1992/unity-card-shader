@@ -59,6 +59,12 @@
 
 			sampler2D _Blend5Tex;
 			float4 _Blend5Tex_ST;
+
+			float4 _Effect1Data[6];
+			float4 _Effect2Data[6];
+			float4 _Effect3Data[6];
+			float4 _Effect4Data[6];
+			float4 _Effect5Data[6];
 			
 			v2f vert (appdata v)
 			{
@@ -141,19 +147,19 @@
 				fixed3 result = card_col.rgb;
 
 				// エフェクト1を合成する
-				result = blendColor(result, effect1 * pulse(uv, 0.0, ZERO2, 1.0, 0.0), mask1, float4(1.0, 0.0, 0.0, 0.0));				// ブレンド
+				result = blendColor(result, effect1 * pulse(uv, 0.0, ZERO2, 1.0, 0.0), mask1, _Effect1Data[0]);				// ブレンド
 
 				// エフェクト2を合成する
-				result = blendColor(result, effect2 * pulse(uv, 0.0, ZERO2, 1.0, 0.0), mask1, float4(1.0, 0.0, 0.0, 0.0));				// ブレンド
+				result = blendColor(result, effect2 * pulse(uv, 0.0, ZERO2, 1.0, 0.0), mask1, _Effect2Data[0]);				// ブレンド
 				
 				// エフェクト3を合成する
-				result = blendColor(result, effect3 * pulse(uv, 5.0, float2(10.0, 0.0), 0.5, 1.0), mask1, float4(0.0, 1.0, 0.0, 0.0));	//加算 + パルス
+				result = blendColor(result, effect3 * pulse(uv, 5.0, float2(10.0, 0.0), 0.5, 1.0), mask1, _Effect3Data[0]);	//加算 + パルス
 								
 				// エフェクト4を合成する
-				result = blendColor(result, effect4 * pulse(uv, 0.0, ZERO2, 1.0, 0.0), mask1, float4(0.0, 1.0, 0.0, 0.0));				//加算
+				result = blendColor(result, effect4 * pulse(uv, 0.0, ZERO2, 1.0, 0.0), mask1, _Effect4Data[0]);				//加算
 								
 				// エフェクト5を合成する
-				result = blendColor(result, effect5 * pulse(uv, 25.0, ZERO2, 1.0, 0.05), 1.0, float4(0.0, 1.0, 0.0, 0.0));				//加算 + パルス
+				result = blendColor(result, effect5 * pulse(uv, 25.0, ZERO2, 1.0, 0.05), 1.0, _Effect5Data[0]);				//加算 + パルス
 
 				return fixed4(result, 1.0);
 			}
