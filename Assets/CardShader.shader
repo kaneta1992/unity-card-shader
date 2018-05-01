@@ -20,6 +20,21 @@
 		_Effect3Pulse ("_Effect3Pulse", Vector) = (0,0,0,0)
 		_Effect4Pulse ("_Effect4Pulse", Vector) = (0,0,0,0)
 		_Effect5Pulse ("_Effect5Pulse", Vector) = (0,0,0,0)
+		_Effect1Coord1 ("_Effect1Coord1", Vector) = (0,0,0,0)
+		_Effect2Coord1 ("_Effect2Coord1", Vector) = (0,0,0,0)
+		_Effect3Coord1 ("_Effect3Coord1", Vector) = (0,0,0,0)
+		_Effect4Coord1 ("_Effect4Coord1", Vector) = (0,0,0,0)
+		_Effect5Coord1 ("_Effect5Coord1", Vector) = (0,0,0,0)
+		_Effect1Coord2 ("_Effect1Coord2", Vector) = (0,0,0,0)
+		_Effect2Coord2 ("_Effect2Coord2", Vector) = (0,0,0,0)
+		_Effect3Coord2 ("_Effect3Coord2", Vector) = (0,0,0,0)
+		_Effect4Coord2 ("_Effect4Coord2", Vector) = (0,0,0,0)
+		_Effect5Coord2 ("_Effect5Coord2", Vector) = (0,0,0,0)
+		//_Effect1Coord3 ("_Effect1Coord3", Vector) = (0,0,0,0)
+		//_Effect2Coord3 ("_Effect2Coord3", Vector) = (0,0,0,0)
+		//_Effect3Coord3 ("_Effect3Coord3", Vector) = (0,0,0,0)
+		//_Effect4Coord3 ("_Effect4Coord3", Vector) = (0,0,0,0)
+		//_Effect5Coord3 ("_Effect5Coord3", Vector) = (0,0,0,0)
 	}
 	SubShader
 	{
@@ -80,6 +95,21 @@
 			float4 _Effect3Pulse;
 			float4 _Effect4Pulse;
 			float4 _Effect5Pulse;
+			float4 _Effect1Coord1;
+			float4 _Effect2Coord1;
+			float4 _Effect3Coord1;
+			float4 _Effect4Coord1;
+			float4 _Effect5Coord1;
+			float4 _Effect1Coord2;
+			float4 _Effect2Coord2;
+			float4 _Effect3Coord2;
+			float4 _Effect4Coord2;
+			float4 _Effect5Coord2;
+			//float4 _Effect1Coord3;
+			//float4 _Effect2Coord3;
+			//float4 _Effect3Coord3;
+			//float4 _Effect4Coord3;
+			//float4 _Effect5Coord3;
 			
 			v2f vert (appdata v)
 			{
@@ -107,13 +137,13 @@
 				return tex2D(tex, platformUV(uv));
 			}
 
-			float2 calcUV(float2 uv, float2 origin, float2 pos, float scale, float angle, float2 dtVec, float dtAngle, float time) {
+			float2 calcUV(float2 uv, float2 origin, float4 tiling_offset, float angle, float2 dtVec, float dtAngle, float time) {
 				//float a = angle + dtAngle * time;
 				//float2 vec = rotate(dtVec * time, -a);
 				//float2 scrollUV = uv - dtVec;
 				//float2 rotateUV = rotate(scrollUV - pos, a) * scale + origin;
 				//return rotateUV;
-				return rotate(uv - pos, angle + dtAngle * time) * scale + origin - dtVec * time;
+				return rotate(uv - tiling_offset.zw, angle + dtAngle * time) * tiling_offset.xy + origin - dtVec * time;
 			}
 
 			float pulse(float2 uv, float freq, float2 pulsePhase, float power) {
@@ -140,23 +170,23 @@
 				fixed4 card_col = platformTex(_MainTex, card_uv);
 
 				// エフェクト1(桜)を取得する
-				float2 effect1_uv = calcUV(uv, ZERO2, ZERO2, 1.0, 0.0, normalize(float2(0.5, 0.5)) * 0.25, 0.0, time);	// スクロール
+				float2 effect1_uv = calcUV(uv, _Effect1Coord1.xy, _Blend1Tex_ST, _Effect1Coord2.x, _Effect1Coord1.zw, _Effect1Coord2.y, time);	// スクロール
 				fixed4 effect1 = platformTex(_Blend1Tex, effect1_uv);
 
 				// エフェクト2(桜)を取得する
-				float2 effect2_uv = calcUV(uv, ZERO2, float2(2.0, 0.0), 2.0, 0.0, ZERO2, 0.1, time);					// 回転
+				float2 effect2_uv = calcUV(uv, _Effect2Coord1.xy, _Blend2Tex_ST, _Effect2Coord2.x, _Effect2Coord1.zw, _Effect2Coord2.y, time);					// 回転
 				float4 effect2 = platformTex(_Blend2Tex, effect2_uv);
 
 				// エフェクト3(キラキラ)を取得する
-				float2 effect3_uv = calcUV(uv, ZERO2, ZERO2, 1.0, 0.0, float2(-0.01, 0.0), 0.0, time);					// スクロール
+				float2 effect3_uv = calcUV(uv, _Effect3Coord1.xy, _Blend3Tex_ST, _Effect3Coord2.x, _Effect3Coord1.zw, _Effect3Coord2.y, time);					// スクロール
 				fixed4 effect3 = platformTex(_Blend3Tex, effect3_uv);
 
 				// エフェクト4(太陽)を取得する
-				float2 effect4_uv = calcUV(uv, float2(0.5, 0.5), float2(-0.1, -0.1), 0.5, 0.0, ZERO2, 0.2, time);		// 回転 + 原点移動
+				float2 effect4_uv = calcUV(uv, _Effect4Coord1.xy, _Blend4Tex_ST, _Effect4Coord2.x, _Effect4Coord1.zw, _Effect4Coord2.y, time);		// 回転 + 原点移動
 				float4 effect4 = saturate(pow(platformTex(_Blend4Tex, effect4_uv) * 6.0, 3.0));
 				
 				// エフェクト5(フレア)を取得する
-				float2 effect5_uv = calcUV(uv, ZERO2, ZERO2, 1.0, 0.0, ZERO2, 0.0, time);								// 通常
+				float2 effect5_uv = calcUV(uv, _Effect5Coord1.xy, _Blend5Tex_ST, _Effect5Coord2.x, _Effect5Coord1.zw, _Effect5Coord2.y, time);								// 通常
 				float4 effect5 = platformTex(_Blend5Tex, effect5_uv);
 
 				fixed3 result = card_col.rgb;

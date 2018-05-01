@@ -81,6 +81,36 @@ public class CardShaderInspector : MaterialEditor
         EditorGUI.indentLevel--;
     }
 
+    private void showCoord(int index)
+    {
+        EditorGUILayout.PrefixLabel("Coord");
+        EditorGUI.indentLevel++;
+        EditorGUI.BeginChangeCheck();
+
+        string numberString = (index + 1).ToString();
+        MaterialProperty coord1 = GetMaterialProperty(targets, "_Effect" + numberString + "Coord1");
+        MaterialProperty coord2 = GetMaterialProperty(targets, "_Effect" + numberString + "Coord2");
+        Vector4 coord1Vec = coord1.vectorValue;
+        Vector4 coord2Vec = coord2.vectorValue;
+
+        Vector2 origin = new Vector2(coord1Vec.x, coord1Vec.y);
+        Vector2 dtVec = new Vector2(coord1Vec.z, coord1Vec.w);
+        float angle = coord2Vec.x;
+        float dtAngle = coord2Vec.y;
+        origin = EditorGUILayout.Vector2Field("origin", origin);
+        angle = EditorGUILayout.FloatField("angle", angle);
+        dtVec = EditorGUILayout.Vector2Field("dtVec", dtVec);
+        dtAngle = EditorGUILayout.FloatField("dtAngle", dtAngle);
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            material.SetVector("_Effect" + numberString + "Coord1", new Vector4(origin.x, origin.y, dtVec.x, dtVec.y));
+            material.SetVector("_Effect" + numberString + "Coord2", new Vector4(angle, dtAngle, 0, 0));
+            EditorUtility.SetDirty(material);
+        }
+        EditorGUI.indentLevel--;
+    }
+
     private void buildEffectPropertiesLayout(int index)
     {
         string numberString = (index + 1).ToString();
@@ -92,8 +122,9 @@ public class CardShaderInspector : MaterialEditor
             EditorGUI.indentLevel = 1;
             MaterialProperty prop = GetMaterialProperty(targets, "_Blend" + numberString + "Tex");
             TextureProperty(prop, "Texture(RGBA)", true);
-            showBlendMode(index);
+            showCoord(index);
             showPulse(index);
+            showBlendMode(index);
             EditorGUI.indentLevel = 0;
 
             if (EditorGUI.EndChangeCheck())
