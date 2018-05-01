@@ -24,6 +24,9 @@ public class CardShaderInspector : MaterialEditor
     static string[] blendModes = new[] { "liner", "add", "sub", "mul" };
     static Vector4[] blendModesVector = new Vector4[] { new Vector4(1, 0, 0, 0), new Vector4(0, 1, 0, 0), new Vector4(0, 0, 1, 0), new Vector4(0, 0, 0, 1) };
 
+    static string[] coordModes = new[] { "UV", "Polar" };
+    static float[] coordModesValue = new float[] { 0.0f, 1.0f };
+
     private void showBlendMode(int index)
     {
         EditorGUI.BeginChangeCheck();
@@ -97,15 +100,21 @@ public class CardShaderInspector : MaterialEditor
         Vector2 dtVec = new Vector2(coord1Vec.z, coord1Vec.w);
         float angle = coord2Vec.x;
         float dtAngle = coord2Vec.y;
-        origin = EditorGUILayout.Vector2Field("origin", origin);
-        angle = EditorGUILayout.FloatField("angle", angle);
+        float coord = coord2Vec.z;
+        int coordIndex = coord > 0.5 ? 1 : 0;
+        coordIndex = EditorGUILayout.Popup("coord", coordIndex, coordModes);
+        if (coordIndex == 0)
+        {
+            angle = EditorGUILayout.FloatField("angle", angle);
+            origin = EditorGUILayout.Vector2Field("origin", origin);
+            dtAngle = EditorGUILayout.FloatField("dtAngle", dtAngle);
+        }
         dtVec = EditorGUILayout.Vector2Field("dtVec", dtVec);
-        dtAngle = EditorGUILayout.FloatField("dtAngle", dtAngle);
 
         if (EditorGUI.EndChangeCheck())
         {
             material.SetVector("_Effect" + numberString + "Coord1", new Vector4(origin.x, origin.y, dtVec.x, dtVec.y));
-            material.SetVector("_Effect" + numberString + "Coord2", new Vector4(angle, dtAngle, 0, 0));
+            material.SetVector("_Effect" + numberString + "Coord2", new Vector4(angle, dtAngle, coordModesValue[coordIndex], 0));
             EditorUtility.SetDirty(material);
         }
         EditorGUI.indentLevel--;
