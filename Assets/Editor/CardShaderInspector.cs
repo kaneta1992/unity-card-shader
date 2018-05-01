@@ -24,8 +24,9 @@ public class CardShaderInspector : MaterialEditor
     static string[] blendModes = new[] { "liner", "add", "sub", "mul" };
     static Vector4[] blendModesVector = new Vector4[] { new Vector4(1, 0, 0, 0), new Vector4(0, 1, 0, 0), new Vector4(0, 0, 1, 0), new Vector4(0, 0, 0, 1) };
 
-    private int showBlendMode(int index)
+    private void showBlendMode(int index)
     {
+        EditorGUI.BeginChangeCheck();
         string numberString = (index + 1).ToString();
         MaterialProperty blend = GetMaterialProperty(targets, "_Effect" + numberString + "BlendMode");
         Vector4 data = blend.vectorValue;
@@ -46,7 +47,38 @@ public class CardShaderInspector : MaterialEditor
         {
             mode = 3;
         }
-        return EditorGUILayout.Popup("Blend Mode", mode, blendModes);
+        mode = EditorGUILayout.Popup("Blend Mode", mode, blendModes);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Vector4 vec = blendModesVector[mode];
+            material.SetVector("_Effect" + numberString + "BlendMode", vec);
+            EditorUtility.SetDirty(material);
+        }
+    }
+
+    private void showPulse(int index)
+    {
+        EditorGUILayout.PrefixLabel("Pulse");   
+        EditorGUI.indentLevel++;
+        EditorGUI.BeginChangeCheck();
+
+        string numberString = (index + 1).ToString();
+        MaterialProperty pulse = GetMaterialProperty(targets, "_Effect" + numberString + "Pulse");
+        Vector4 data = pulse.vectorValue;
+
+        float freq = data.x;
+        Vector2 phase = new Vector2(data.y, data.z);
+        float power = data.w;
+        freq = EditorGUILayout.FloatField("freq", freq);
+        phase = EditorGUILayout.Vector2Field("phase", phase);
+        power = EditorGUILayout.FloatField("power", power);
+
+        if (EditorGUI.EndChangeCheck())
+        {
+            material.SetVector("_Effect" + numberString + "Pulse", new Vector4(freq, phase.x, phase.y, power));
+            EditorUtility.SetDirty(material);
+        }
+        EditorGUI.indentLevel--;
     }
 
     private void buildEffectPropertiesLayout(int index)
@@ -60,14 +92,12 @@ public class CardShaderInspector : MaterialEditor
             EditorGUI.indentLevel = 1;
             MaterialProperty prop = GetMaterialProperty(targets, "_Blend" + numberString + "Tex");
             TextureProperty(prop, "Texture(RGBA)", true);
-            int mode = showBlendMode(index);
+            showBlendMode(index);
+            showPulse(index);
             EditorGUI.indentLevel = 0;
 
             if (EditorGUI.EndChangeCheck())
             {
-                Vector4 data = blendModesVector[mode];
-                material.SetVector("_Effect" + numberString + "BlendMode", data);
-                Debug.Log(data);
                 EditorUtility.SetDirty(material);
             }
         }

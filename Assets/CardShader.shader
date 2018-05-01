@@ -15,6 +15,11 @@
 		_Effect3BlendMode ("Effect3BlendMode", Vector) = (1,0,0,0)
 		_Effect4BlendMode ("Effect4BlendMode", Vector) = (1,0,0,0)
 		_Effect5BlendMode ("Effect5BlendMode", Vector) = (1,0,0,0)
+		_Effect1Pulse ("_Effect1Pulse", Vector) = (0,0,0,0)
+		_Effect2Pulse ("_Effect2Pulse", Vector) = (0,0,0,0)
+		_Effect3Pulse ("_Effect3Pulse", Vector) = (0,0,0,0)
+		_Effect4Pulse ("_Effect4Pulse", Vector) = (0,0,0,0)
+		_Effect5Pulse ("_Effect5Pulse", Vector) = (0,0,0,0)
 	}
 	SubShader
 	{
@@ -70,6 +75,11 @@
 			float4 _Effect3BlendMode;
 			float4 _Effect4BlendMode;
 			float4 _Effect5BlendMode;
+			float4 _Effect1Pulse;
+			float4 _Effect2Pulse;
+			float4 _Effect3Pulse;
+			float4 _Effect4Pulse;
+			float4 _Effect5Pulse;
 			
 			v2f vert (appdata v)
 			{
@@ -152,19 +162,19 @@
 				fixed3 result = card_col.rgb;
 
 				// エフェクト1を合成する
-				result = blendColor(result, effect1 * pulse(uv, 0.0, ZERO2, 0.0), mask1, _Effect1BlendMode);				// ブレンド
+				result = blendColor(result, effect1 * pulse(uv, _Effect1Pulse.x, _Effect1Pulse.yz, _Effect1Pulse.w), mask1, _Effect1BlendMode);				// ブレンド
 
 				// エフェクト2を合成する
-				result = blendColor(result, effect2 * pulse(uv, 0.0, ZERO2, 0.0), mask1, _Effect2BlendMode);				// ブレンド
+				result = blendColor(result, effect2 * pulse(uv, _Effect2Pulse.x, _Effect2Pulse.yz, _Effect2Pulse.w), mask1, _Effect2BlendMode);				// ブレンド
 				
 				// エフェクト3を合成する
-				result = blendColor(result, effect3 * pulse(uv, 5.0, float2(10.0, 0.0), -0.5), mask1, _Effect3BlendMode);	//加算 + パルス
+				result = blendColor(result, effect3 * pulse(uv, _Effect3Pulse.x, _Effect3Pulse.yz, _Effect3Pulse.w), mask1, _Effect3BlendMode);	//加算 + パルス
 								
 				// エフェクト4を合成する
-				result = blendColor(result, effect4 * pulse(uv, 0.0, ZERO2, 0.0), mask1, _Effect4BlendMode);				//加算
+				result = blendColor(result, effect4 * pulse(uv, _Effect4Pulse.x, _Effect4Pulse.yz, _Effect4Pulse.w), mask1, _Effect4BlendMode);				//加算
 								
 				// エフェクト5を合成する
-				result = blendColor(result, effect5 * pulse(uv, 25.0, ZERO2, 0.05), 1.0, _Effect5BlendMode);				//加算 + パルス
+				result = blendColor(result, effect5 * pulse(uv, _Effect5Pulse.x, _Effect5Pulse.yz, _Effect5Pulse.w), 1.0, _Effect5BlendMode);				//加算 + パルス
 
 				return fixed4(result, 1.0);
 			}
