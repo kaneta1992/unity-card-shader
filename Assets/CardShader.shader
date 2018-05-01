@@ -10,6 +10,11 @@
 		_Blend3Tex ("Blend3", 2D) = "white" {}
 		_Blend4Tex ("Blend4", 2D) = "white" {}
 		_Blend5Tex ("Blend5", 2D) = "white" {}
+		_Effect1BlendMode ("Effect1BlendMode", Vector) = (1,0,0,0)
+		_Effect2BlendMode ("Effect2BlendMode", Vector) = (1,0,0,0)
+		_Effect3BlendMode ("Effect3BlendMode", Vector) = (1,0,0,0)
+		_Effect4BlendMode ("Effect4BlendMode", Vector) = (1,0,0,0)
+		_Effect5BlendMode ("Effect5BlendMode", Vector) = (1,0,0,0)
 	}
 	SubShader
 	{
@@ -60,11 +65,11 @@
 			sampler2D _Blend5Tex;
 			float4 _Blend5Tex_ST;
 
-			float4 _Effect1Data[6];
-			float4 _Effect2Data[6];
-			float4 _Effect3Data[6];
-			float4 _Effect4Data[6];
-			float4 _Effect5Data[6];
+			float4 _Effect1BlendMode;
+			float4 _Effect2BlendMode;
+			float4 _Effect3BlendMode;
+			float4 _Effect4BlendMode;
+			float4 _Effect5BlendMode;
 			
 			v2f vert (appdata v)
 			{
@@ -101,9 +106,9 @@
 				return rotate(uv - pos, angle + dtAngle * time) * scale + origin - dtVec * time;
 			}
 
-			float pulse(float2 uv, float freq, float2 pulsePhase, float offset, float power) {
+			float pulse(float2 uv, float freq, float2 pulsePhase, float power) {
 				float s = sin(_Time.y * freq + uv.x * pulsePhase.x + uv.y * pulsePhase.y) * 0.5 + 0.5;
-				return offset + s * power;
+				return 1.0 + s * power;
 			}
 
 			fixed3 blendColor(fixed3 src, fixed4 dest, float blend, float4 type) {
@@ -147,19 +152,19 @@
 				fixed3 result = card_col.rgb;
 
 				// エフェクト1を合成する
-				result = blendColor(result, effect1 * pulse(uv, 0.0, ZERO2, 1.0, 0.0), mask1, _Effect1Data[0]);				// ブレンド
+				result = blendColor(result, effect1 * pulse(uv, 0.0, ZERO2, 0.0), mask1, _Effect1BlendMode);				// ブレンド
 
 				// エフェクト2を合成する
-				result = blendColor(result, effect2 * pulse(uv, 0.0, ZERO2, 1.0, 0.0), mask1, _Effect2Data[0]);				// ブレンド
+				result = blendColor(result, effect2 * pulse(uv, 0.0, ZERO2, 0.0), mask1, _Effect2BlendMode);				// ブレンド
 				
 				// エフェクト3を合成する
-				result = blendColor(result, effect3 * pulse(uv, 5.0, float2(10.0, 0.0), 0.5, 1.0), mask1, _Effect3Data[0]);	//加算 + パルス
+				result = blendColor(result, effect3 * pulse(uv, 5.0, float2(10.0, 0.0), -0.5), mask1, _Effect3BlendMode);	//加算 + パルス
 								
 				// エフェクト4を合成する
-				result = blendColor(result, effect4 * pulse(uv, 0.0, ZERO2, 1.0, 0.0), mask1, _Effect4Data[0]);				//加算
+				result = blendColor(result, effect4 * pulse(uv, 0.0, ZERO2, 0.0), mask1, _Effect4BlendMode);				//加算
 								
 				// エフェクト5を合成する
-				result = blendColor(result, effect5 * pulse(uv, 25.0, ZERO2, 1.0, 0.05), 1.0, _Effect5Data[0]);				//加算 + パルス
+				result = blendColor(result, effect5 * pulse(uv, 25.0, ZERO2, 0.05), 1.0, _Effect5BlendMode);				//加算 + パルス
 
 				return fixed4(result, 1.0);
 			}

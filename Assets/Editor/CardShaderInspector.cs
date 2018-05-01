@@ -2,6 +2,11 @@
 using System.Collections;
 using UnityEditor;
 
+public class Generator : ScriptableObject
+{
+    public Vector4 blendMode = Vector4.zero;
+}
+
 public class CardShaderInspector : MaterialEditor
 {
 
@@ -14,11 +19,35 @@ public class CardShaderInspector : MaterialEditor
         }
     }
 
-    static bool[] showEffectSettings = { false, false, false, false, false };
+    bool[] showEffectSettings = { false, false, false, false, false };
 
     static string[] blendModes = new[] { "liner", "add", "sub", "mul" };
     static Vector4[] blendModesVector = new Vector4[] { new Vector4(1, 0, 0, 0), new Vector4(0, 1, 0, 0), new Vector4(0, 0, 1, 0), new Vector4(0, 0, 0, 1) };
-    static int[] blendModeIndex = { 0, 0, 0, 0, 0 };
+
+    private int showBlendMode(int index)
+    {
+        string numberString = (index + 1).ToString();
+        MaterialProperty blend = GetMaterialProperty(targets, "_Effect" + numberString + "BlendMode");
+        Vector4 data = blend.vectorValue;
+        int mode = 0;
+        if (data.x > 0.9)
+        {
+            mode = 0;
+        }
+        else if (data.y > 0.9)
+        {
+            mode = 1;
+        }
+        else if (data.z > 0.9)
+        {
+            mode = 2;
+        }
+        else if (data.w > 0.9)
+        {
+            mode = 3;
+        }
+        return EditorGUILayout.Popup("Blend Mode", mode, blendModes);
+    }
 
     private void buildEffectPropertiesLayout(int index)
     {
@@ -31,21 +60,15 @@ public class CardShaderInspector : MaterialEditor
             EditorGUI.indentLevel = 1;
             MaterialProperty prop = GetMaterialProperty(targets, "_Blend" + numberString + "Tex");
             TextureProperty(prop, "Texture(RGBA)", true);
-            blendModeIndex[index] = EditorGUILayout.Popup("Blend Mode", blendModeIndex[index], blendModes);
+            int mode = showBlendMode(index);
             EditorGUI.indentLevel = 0;
 
             if (EditorGUI.EndChangeCheck())
             {
-                Vector4[] data = new Vector4[] {
-                    blendModesVector[blendModeIndex[index]],
-                    Vector4.zero,
-                    Vector4.zero,
-                    Vector4.zero,
-                    Vector4.zero,
-                    Vector4.zero,
-                };
-                material.SetVectorArray("_Effect" + numberString + "Data", data);
-                EditorUtility.SetDirty(target);
+                Vector4 data = blendModesVector[mode];
+                material.SetVector("_Effect" + numberString + "BlendMode", data);
+                Debug.Log(data);
+                EditorUtility.SetDirty(material);
             }
         }
     }
