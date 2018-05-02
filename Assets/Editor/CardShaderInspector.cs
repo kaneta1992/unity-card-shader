@@ -108,11 +108,11 @@ public class CardShaderInspector : MaterialEditor
         coordIndex = EditorGUILayout.Popup("coord", coordIndex, coordModes);
         if (coordIndex == 0)
         {
-            angle = EditorGUILayout.FloatField("angle", angle);
             origin = EditorGUILayout.Vector2Field("origin", origin);
-            dtAngle = EditorGUILayout.FloatField("dtAngle", dtAngle);
         }
+        angle = EditorGUILayout.FloatField("angle", angle);
         dtVec = EditorGUILayout.Vector2Field("dtVec", dtVec);
+        dtAngle = EditorGUILayout.FloatField("dtAngle", dtAngle);
 
         if (EditorGUI.EndChangeCheck())
         {

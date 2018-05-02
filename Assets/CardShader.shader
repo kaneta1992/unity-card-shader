@@ -161,9 +161,9 @@
 				return rotate(uv - tiling_offset.zw, angle + dtAngle * time) * tiling_offset.xy + origin - dtVec * time;
 			}
 
-			float2 polar(float2 uv, float4 tiling_offset, float2 dtVec, float time)
+			float2 polar(float2 uv, float4 tiling_offset, float angle, float2 dtVec, float dtAngle, float time)
 			{
-				uv = (uv - tiling_offset.zw) * tiling_offset.xy;
+				uv = rotate((uv - tiling_offset.zw), angle + dtAngle * time) * tiling_offset.xy;
 				float distance = length(uv) - time * dtVec.y;
 				float theta = ((atan2(uv.y, uv.x)) / (PI*2) + 0.5) - time * dtVec.x;
 				return float2(theta, distance);
@@ -196,27 +196,27 @@
 				fixed4 card_col = platformTex(_MainTex, card_uv);
 
 				// エフェクト1(桜)を取得する
-				float2 effect1_polar = polar(uv, _Blend1Tex_ST, _Effect1Coord1.zw, time);
+				float2 effect1_polar = polar(uv, _Blend1Tex_ST, _Effect1Coord2, _Effect1Coord1.zw, _Effect1Coord2.y, time);
 				float2 effect1_uv = calcUV(uv, _Effect1Coord1.xy, _Blend1Tex_ST, _Effect1Coord2.x, _Effect1Coord1.zw, _Effect1Coord2.y, time);	// スクロール
 				fixed4 effect1 = platformTex(_Blend1Tex, lerp(effect1_uv, effect1_polar, _Effect1Coord2.z));
 
 				// エフェクト2(桜)を取得する
-				float2 effect2_polar = polar(uv, _Blend2Tex_ST, _Effect2Coord1.zw, time);
+				float2 effect2_polar = polar(uv, _Blend2Tex_ST, _Effect2Coord2, _Effect2Coord1.zw, _Effect2Coord2.y, time);
 				float2 effect2_uv = calcUV(uv, _Effect2Coord1.xy, _Blend2Tex_ST, _Effect2Coord2.x, _Effect2Coord1.zw, _Effect2Coord2.y, time);					// 回転
 				float4 effect2 = platformTex(_Blend2Tex, lerp(effect2_uv, effect2_polar, _Effect2Coord2.z));
 
 				// エフェクト3(キラキラ)を取得する
-				float2 effect3_polar = polar(uv, _Blend3Tex_ST, _Effect3Coord1.zw, time);
+				float2 effect3_polar = polar(uv, _Blend3Tex_ST, _Effect3Coord2, _Effect3Coord1.zw, _Effect3Coord2.y, time);
 				float2 effect3_uv = calcUV(uv, _Effect3Coord1.xy, _Blend3Tex_ST, _Effect3Coord2.x, _Effect3Coord1.zw, _Effect3Coord2.y, time);					// スクロール
 				fixed4 effect3 = platformTex(_Blend3Tex, lerp(effect3_uv, effect3_polar, _Effect3Coord2.z));
 
 				// エフェクト4(太陽)を取得する
-				float2 effect4_polar = polar(uv, _Blend4Tex_ST, _Effect4Coord1.zw, time);
+				float2 effect4_polar = polar(uv, _Blend4Tex_ST, _Effect4Coord2, _Effect4Coord1.zw, _Effect4Coord2.y, time);
 				float2 effect4_uv = calcUV(uv, _Effect4Coord1.xy, _Blend4Tex_ST, _Effect4Coord2.x, _Effect4Coord1.zw, _Effect4Coord2.y, time);		// 回転 + 原点移動
 				float4 effect4 = platformTex(_Blend4Tex, lerp(effect4_uv, effect4_polar, _Effect4Coord2.z));
 				
 				// エフェクト5(フレア)を取得する
-				float2 effect5_polar = polar(uv, _Blend5Tex_ST, _Effect5Coord1.zw, time);
+				float2 effect5_polar = polar(uv, _Blend5Tex_ST, _Effect5Coord2, _Effect5Coord1.zw, _Effect5Coord2.y, time);
 				float2 effect5_uv = calcUV(uv, _Effect5Coord1.xy, _Blend5Tex_ST, _Effect5Coord2.x, _Effect5Coord1.zw, _Effect5Coord2.y, time);								// 通常
 				float4 effect5 = platformTex(_Blend5Tex, lerp(effect5_uv, effect5_polar, _Effect5Coord2.z));
 
