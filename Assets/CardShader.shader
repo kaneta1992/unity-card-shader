@@ -4,11 +4,11 @@
 	{
 		[NoScaleOffset] _MainTex ("Card", 2D) = "white" {}
 		[NoScaleOffset] _MaskTex ("Mask", 2D) = "white" {}
-		_Blend1Tex ("Blend1", 2D) = "white" {}
-		_Blend2Tex ("Blend2", 2D) = "white" {}
-		_Blend3Tex ("Blend3", 2D) = "white" {}
-		_Blend4Tex ("Blend4", 2D) = "white" {}
-		_Blend5Tex ("Blend5", 2D) = "white" {}
+		_Blend1Tex ("Blend1", 2D) = "black" {}
+		_Blend2Tex ("Blend2", 2D) = "black" {}
+		_Blend3Tex ("Blend3", 2D) = "black" {}
+		_Blend4Tex ("Blend4", 2D) = "black" {}
+		_Blend5Tex ("Blend5", 2D) = "black" {}
 		_Effect1BlendMode ("Effect1BlendMode", Vector) = (1,0,0,0)
 		_Effect2BlendMode ("Effect2BlendMode", Vector) = (1,0,0,0)
 		_Effect3BlendMode ("Effect3BlendMode", Vector) = (1,0,0,0)
@@ -34,6 +34,9 @@
 		_Effect3UseMask ("_Effect3UseMask", Vector) = (0,0,0,0)
 		_Effect4UseMask ("_Effect4UseMask", Vector) = (0,0,0,0)
 		_Effect5UseMask ("_Effect5UseMask", Vector) = (0,0,0,0)
+		_WaveValue1 ("_WaveValue1", Vector) = (0,0,0,0)
+		_WaveValue2 ("_WaveValue2", Vector) = (0,0,0,0)
+		_WaveUseMask ("_WaveUseMask", Vector) = (0,0,0,0)
 		//_Effect1Coord3 ("_Effect1Coord3", Vector) = (0,0,0,0)
 		//_Effect2Coord3 ("_Effect2Coord3", Vector) = (0,0,0,0)
 		//_Effect3Coord3 ("_Effect3Coord3", Vector) = (0,0,0,0)
@@ -113,6 +116,10 @@
 			float4 _Effect3UseMask;
 			float4 _Effect4UseMask;
 			float4 _Effect5UseMask;
+
+			float4 _WaveValue1;
+			float4 _WaveValue2;
+			float4 _WaveUseMask;
 			//float4 _Effect1Coord3;
 			//float4 _Effect2Coord3;
 			//float4 _Effect3Coord3;
@@ -185,7 +192,7 @@
 				fixed4 mask = platformTex(_MaskTex, uv);
 
 				// カードを歪ませて取得
-				float2 card_uv = uv + float2(sin(time * 4.0 + uv.x * 5.0 + uv.y * 20.0), cos(time * 4.0 + uv.x * 20.0 + uv.y * 5.0)) * 0.005 * mask.g;
+				float2 card_uv = uv + float2(sin(time * _WaveValue2.y + uv.x * _WaveValue1.x + uv.y * _WaveValue1.y), cos(time * _WaveValue2.y + uv.x * _WaveValue1.z + uv.y * _WaveValue1.w)) * _WaveValue2.x * useMask(mask, _WaveUseMask);
 				fixed4 card_col = platformTex(_MainTex, card_uv);
 
 				// エフェクト1(桜)を取得する

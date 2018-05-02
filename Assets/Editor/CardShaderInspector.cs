@@ -155,6 +155,56 @@ public class CardShaderInspector : MaterialEditor
         }
     }
 
+    private void showWave()
+    {
+        EditorGUILayout.PrefixLabel("Wave");
+        EditorGUI.indentLevel = 1;
+        EditorGUI.BeginChangeCheck();
+
+        MaterialProperty value1Prop = GetMaterialProperty(targets, "_WaveValue1");
+        MaterialProperty value2Prop = GetMaterialProperty(targets, "_WaveValue2");
+        MaterialProperty maskProp = GetMaterialProperty(targets, "_WaveUseMask");
+        Vector4 value1 = value1Prop.vectorValue;
+        Vector4 value2 = value2Prop.vectorValue;
+        Vector4 mask = maskProp.vectorValue;
+
+        int mode = 0;
+        Vector2 offset_x = new Vector2(value1.x, value1.y);
+        Vector2 offset_y = new Vector2(value1.z, value1.w);
+        float intensity = value2.x;
+        float speed = value2.y;
+
+        if (mask.x > 0.9)
+        {
+            mode = 1;
+        }
+        else if (mask.y > 0.9)
+        {
+            mode = 2;
+        }
+        else if (mask.z > 0.9)
+        {
+            mode = 3;
+        }
+        else if (mask.w > 0.9)
+        {
+            mode = 4;
+        }
+        mode = EditorGUILayout.Popup("Use Mask", mode, useMasks);
+        speed = EditorGUILayout.FloatField("speed", speed);
+        offset_x = EditorGUILayout.Vector2Field("horizontal offset", offset_x);
+        offset_y = EditorGUILayout.Vector2Field("vertical offset", offset_y);
+        intensity = EditorGUILayout.FloatField("intensity", intensity);
+        if (EditorGUI.EndChangeCheck())
+        {
+            material.SetVector("_WaveValue1", new Vector4(offset_x.x, offset_x.y, offset_y.x, offset_y.y));
+            material.SetVector("_WaveValue2", new Vector4(intensity, speed, 0, 0));
+            material.SetVector("_WaveUseMask", useMasksVector[mode]);
+            EditorUtility.SetDirty(material);
+        }
+        EditorGUI.indentLevel = 0;
+    }
+
     private void buildEffectPropertiesLayout(int index)
     {
         string numberString = (index + 1).ToString();
@@ -187,6 +237,7 @@ public class CardShaderInspector : MaterialEditor
 
         MaterialProperty mask1 = GetMaterialProperty(targets, "_MaskTex");
         TextureProperty(mask1, "Mask", false);
+        showWave();
 
         for(int i = 0; i < 5; i++)
         {
