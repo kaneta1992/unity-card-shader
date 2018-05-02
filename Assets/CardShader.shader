@@ -29,6 +29,11 @@
 		_Effect3Coord2 ("_Effect3Coord2", Vector) = (0,0,0,0)
 		_Effect4Coord2 ("_Effect4Coord2", Vector) = (0,0,0,0)
 		_Effect5Coord2 ("_Effect5Coord2", Vector) = (0,0,0,0)
+		_Effect1UseMask ("_Effect1UseMask", Vector) = (0,0,0,0)
+		_Effect2UseMask ("_Effect2UseMask", Vector) = (0,0,0,0)
+		_Effect3UseMask ("_Effect3UseMask", Vector) = (0,0,0,0)
+		_Effect4UseMask ("_Effect4UseMask", Vector) = (0,0,0,0)
+		_Effect5UseMask ("_Effect5UseMask", Vector) = (0,0,0,0)
 		//_Effect1Coord3 ("_Effect1Coord3", Vector) = (0,0,0,0)
 		//_Effect2Coord3 ("_Effect2Coord3", Vector) = (0,0,0,0)
 		//_Effect3Coord3 ("_Effect3Coord3", Vector) = (0,0,0,0)
@@ -103,6 +108,11 @@
 			float4 _Effect3Coord2;
 			float4 _Effect4Coord2;
 			float4 _Effect5Coord2;
+			float4 _Effect1UseMask;
+			float4 _Effect2UseMask;
+			float4 _Effect3UseMask;
+			float4 _Effect4UseMask;
+			float4 _Effect5UseMask;
 			//float4 _Effect1Coord3;
 			//float4 _Effect2Coord3;
 			//float4 _Effect3Coord3;
@@ -162,6 +172,10 @@
 				fixed3 blendedDest = dest.rgb * alpha;
 				return mul(type, float4x4(lerp(src, dest, alpha), 0, src + blendedDest, 0, src - blendedDest, 0, src * blendedDest, 0));	// GLESでは非正方行列が使えないらしい；；
 			}
+
+			fixed useMask(fixed4 mask, float4 useVec) {
+				return 1.0 - dot(mask, useVec);
+			}
 			
 			fixed4 frag (v2f i) : SV_Target
 			{
@@ -202,19 +216,19 @@
 				fixed3 result = card_col.rgb;
 
 				// エフェクト1を合成する
-				result = blendColor(result, effect1 * pulse(uv, _Effect1Pulse.x, _Effect1Pulse.yz, _Effect1Pulse.w), mask.r, _Effect1BlendMode);				// ブレンド
+				result = blendColor(result, effect1 * pulse(uv, _Effect1Pulse.x, _Effect1Pulse.yz, _Effect1Pulse.w), useMask(mask, _Effect1UseMask), _Effect1BlendMode);				// ブレンド
 
 				// エフェクト2を合成する
-				result = blendColor(result, effect2 * pulse(uv, _Effect2Pulse.x, _Effect2Pulse.yz, _Effect2Pulse.w), mask.r, _Effect2BlendMode);				// ブレンド
+				result = blendColor(result, effect2 * pulse(uv, _Effect2Pulse.x, _Effect2Pulse.yz, _Effect2Pulse.w), useMask(mask, _Effect2UseMask), _Effect2BlendMode);				// ブレンド
 				
 				// エフェクト3を合成する
-				result = blendColor(result, effect3 * pulse(uv, _Effect3Pulse.x, _Effect3Pulse.yz, _Effect3Pulse.w), mask.r, _Effect3BlendMode);	//加算 + パルス
+				result = blendColor(result, effect3 * pulse(uv, _Effect3Pulse.x, _Effect3Pulse.yz, _Effect3Pulse.w), useMask(mask, _Effect3UseMask), _Effect3BlendMode);	//加算 + パルス
 								
 				// エフェクト4を合成する
-				result = blendColor(result, effect4 * pulse(uv, _Effect4Pulse.x, _Effect4Pulse.yz, _Effect4Pulse.w), mask.r, _Effect4BlendMode);				//加算
+				result = blendColor(result, effect4 * pulse(uv, _Effect4Pulse.x, _Effect4Pulse.yz, _Effect4Pulse.w), useMask(mask, _Effect4UseMask), _Effect4BlendMode);				//加算
 								
 				// エフェクト5を合成する
-				result = blendColor(result, effect5 * pulse(uv, _Effect5Pulse.x, _Effect5Pulse.yz, _Effect5Pulse.w), 1.0, _Effect5BlendMode);				//加算 + パルス
+				result = blendColor(result, effect5 * pulse(uv, _Effect5Pulse.x, _Effect5Pulse.yz, _Effect5Pulse.w), useMask(mask, _Effect5UseMask), _Effect5BlendMode);				//加算 + パルス
 
 				return fixed4(result, 1.0);
 			}

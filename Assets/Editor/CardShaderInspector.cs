@@ -27,6 +27,9 @@ public class CardShaderInspector : MaterialEditor
     static string[] coordModes = new[] { "UV", "Polar" };
     static float[] coordModesValue = new float[] { 0.0f, 1.0f };
 
+    static string[] useMasks = new[] { "none", "R", "G", "B", "A" };
+    static Vector4[] useMasksVector = new Vector4[] { Vector4.zero, new Vector4(1, 0, 0, 0), new Vector4(0, 1, 0, 0), new Vector4(0, 0, 1, 0), new Vector4(0, 0, 0, 1) };
+
     private void showBlendMode(int index)
     {
         EditorGUI.BeginChangeCheck();
@@ -120,6 +123,38 @@ public class CardShaderInspector : MaterialEditor
         EditorGUI.indentLevel--;
     }
 
+    private void showUseMask(int index)
+    {
+        EditorGUI.BeginChangeCheck();
+        string numberString = (index + 1).ToString();
+        MaterialProperty mask = GetMaterialProperty(targets, "_Effect" + numberString + "UseMask");
+        Vector4 data = mask.vectorValue;
+        int mode = 0;
+        if (data.x > 0.9)
+        {
+            mode = 1;
+        }
+        else if (data.y > 0.9)
+        {
+            mode = 2;
+        }
+        else if (data.z > 0.9)
+        {
+            mode = 3;
+        }
+        else if (data.w > 0.9)
+        {
+            mode = 4;
+        }
+        mode = EditorGUILayout.Popup("Use Mask", mode, useMasks);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Vector4 vec = useMasksVector[mode];
+            material.SetVector("_Effect" + numberString + "UseMask", vec);
+            EditorUtility.SetDirty(material);
+        }
+    }
+
     private void buildEffectPropertiesLayout(int index)
     {
         string numberString = (index + 1).ToString();
@@ -131,6 +166,7 @@ public class CardShaderInspector : MaterialEditor
             EditorGUI.indentLevel = 1;
             MaterialProperty prop = GetMaterialProperty(targets, "_Blend" + numberString + "Tex");
             TextureProperty(prop, "Texture(RGBA)", true);
+            showUseMask(index);
             showCoord(index);
             showPulse(index);
             showBlendMode(index);
