@@ -3,8 +3,7 @@
 	Properties
 	{
 		[NoScaleOffset] _MainTex ("Card", 2D) = "white" {}
-		[NoScaleOffset] _Mask1Tex ("Mask1", 2D) = "white" {}
-		[NoScaleOffset] _Mask2Tex ("Mask2", 2D) = "white" {}
+		[NoScaleOffset] _MaskTex ("Mask", 2D) = "white" {}
 		_Blend1Tex ("Blend1", 2D) = "white" {}
 		_Blend2Tex ("Blend2", 2D) = "white" {}
 		_Blend3Tex ("Blend3", 2D) = "white" {}
@@ -67,9 +66,7 @@
 
 			sampler2D _MainTex;
 
-			sampler2D _Mask1Tex;
-
-			sampler2D _Mask2Tex;
+			sampler2D _MaskTex;
 
 			sampler2D _Blend1Tex;
 			float4 _Blend1Tex_ST;
@@ -171,11 +168,10 @@
 				float2 uv = platformUV(i.uv);
 				float time = _Time.y;
 				// マスク類の取得
-				fixed mask1 = platformTex(_Mask1Tex, uv).r;
-				fixed mask2 = platformTex(_Mask2Tex, uv).r;
+				fixed4 mask = platformTex(_MaskTex, uv);
 
 				// カードを歪ませて取得
-				float2 card_uv = uv + float2(sin(time * 4.0 + uv.x * 5.0 + uv.y * 20.0), cos(time * 4.0 + uv.x * 20.0 + uv.y * 5.0)) * 0.005 * (1.0 - mask2);
+				float2 card_uv = uv + float2(sin(time * 4.0 + uv.x * 5.0 + uv.y * 20.0), cos(time * 4.0 + uv.x * 20.0 + uv.y * 5.0)) * 0.005 * mask.g;
 				fixed4 card_col = platformTex(_MainTex, card_uv);
 
 				// エフェクト1(桜)を取得する
@@ -206,16 +202,16 @@
 				fixed3 result = card_col.rgb;
 
 				// エフェクト1を合成する
-				result = blendColor(result, effect1 * pulse(uv, _Effect1Pulse.x, _Effect1Pulse.yz, _Effect1Pulse.w), mask1, _Effect1BlendMode);				// ブレンド
+				result = blendColor(result, effect1 * pulse(uv, _Effect1Pulse.x, _Effect1Pulse.yz, _Effect1Pulse.w), mask.r, _Effect1BlendMode);				// ブレンド
 
 				// エフェクト2を合成する
-				result = blendColor(result, effect2 * pulse(uv, _Effect2Pulse.x, _Effect2Pulse.yz, _Effect2Pulse.w), mask1, _Effect2BlendMode);				// ブレンド
+				result = blendColor(result, effect2 * pulse(uv, _Effect2Pulse.x, _Effect2Pulse.yz, _Effect2Pulse.w), mask.r, _Effect2BlendMode);				// ブレンド
 				
 				// エフェクト3を合成する
-				result = blendColor(result, effect3 * pulse(uv, _Effect3Pulse.x, _Effect3Pulse.yz, _Effect3Pulse.w), mask1, _Effect3BlendMode);	//加算 + パルス
+				result = blendColor(result, effect3 * pulse(uv, _Effect3Pulse.x, _Effect3Pulse.yz, _Effect3Pulse.w), mask.r, _Effect3BlendMode);	//加算 + パルス
 								
 				// エフェクト4を合成する
-				result = blendColor(result, effect4 * pulse(uv, _Effect4Pulse.x, _Effect4Pulse.yz, _Effect4Pulse.w), mask1, _Effect4BlendMode);				//加算
+				result = blendColor(result, effect4 * pulse(uv, _Effect4Pulse.x, _Effect4Pulse.yz, _Effect4Pulse.w), mask.r, _Effect4BlendMode);				//加算
 								
 				// エフェクト5を合成する
 				result = blendColor(result, effect5 * pulse(uv, _Effect5Pulse.x, _Effect5Pulse.yz, _Effect5Pulse.w), 1.0, _Effect5BlendMode);				//加算 + パルス

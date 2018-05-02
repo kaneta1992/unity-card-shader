@@ -149,11 +149,8 @@ public class CardShaderInspector : MaterialEditor
         // マテリアルを閉じた時に非表示にする
         if (isVisible == false) { return; }
 
-        MaterialProperty mask1 = GetMaterialProperty(targets, "_Mask1Tex");
-        TextureProperty(mask1, "Mask1", false);
-
-        MaterialProperty mask2 = GetMaterialProperty(targets, "_Mask2Tex");
-        TextureProperty(mask2, "Mask2", false);
+        MaterialProperty mask1 = GetMaterialProperty(targets, "_MaskTex");
+        TextureProperty(mask1, "Mask", false);
 
         for(int i = 0; i < 5; i++)
         {
