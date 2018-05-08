@@ -57,8 +57,8 @@
 
 			#define FETCH_TEXTURE(id)\
 				platformTex(_Blend##id##Tex, lerp(\
-					calcUV(uv, _Effect##id##Coord1.xy, _Blend##id##Tex_ST, _Effect##id##Coord2.x, _Effect##id##Coord1.zw, _Effect##id##Coord2.y, time),\
-					polar(uv, _Blend##id##Tex_ST, _Effect##id##Coord2, _Effect##id##Coord1.zw, _Effect##id##Coord2.y, time), _Effect##id##Coord2.z))
+					calcUV(uv, _Effect##id##Coord1.xy, _Blend##id##Tex_ST, _Effect##id##Coord2.x, _Effect##id##Coord1.zw, _Effect##id##Coord2.y),\
+					polar(uv, _Blend##id##Tex_ST, _Effect##id##Coord2, _Effect##id##Coord1.zw, _Effect##id##Coord2.y), _Effect##id##Coord2.z))
 
 			#define BLEND_COLOR(name, id)\
 				blendColor(result, name * pulse(uv, _Effect##id##Pulse.x, _Effect##id##Pulse.yz, _Effect##id##Pulse.w), useMask(mask, _Effect##id##UseMask), _Effect##id##BlendMode)
@@ -149,15 +149,15 @@
 				return tex2D(tex, platformUV(uv));
 			}
 
-			float2 calcUV(float2 uv, float2 origin, float4 tiling_offset, float angle, float2 dtVec, float dtAngle, float time) {
-				return rotate(uv - tiling_offset.zw, angle + dtAngle * time) * tiling_offset.xy + origin - dtVec * time;
+			float2 calcUV(float2 uv, float2 origin, float4 tiling_offset, float angle, float2 dtVec, float dtAngle) {
+				return rotate(uv - tiling_offset.zw, angle + dtAngle * _Time.y) * tiling_offset.xy + origin - dtVec * _Time.y;
 			}
 
-			float2 polar(float2 uv, float4 tiling_offset, float angle, float2 dtVec, float dtAngle, float time)
+			float2 polar(float2 uv, float4 tiling_offset, float angle, float2 dtVec, float dtAngle)
 			{
-				uv = rotate((uv - tiling_offset.zw), angle + dtAngle * time) * tiling_offset.xy;
-				float distance = length(uv) - time * dtVec.y;
-				float theta = ((atan2(uv.y, uv.x)) / (PI*2) + 0.5) - time * dtVec.x;
+				uv = rotate((uv - tiling_offset.zw), angle + dtAngle * _Time.y) * tiling_offset.xy;
+				float distance = length(uv) - _Time.y * dtVec.y;
+				float theta = ((atan2(uv.y, uv.x)) / (PI*2) + 0.5) - _Time.y * dtVec.x;
 				return float2(theta, distance);
 			}
 
@@ -179,12 +179,11 @@
 			fixed4 frag (v2f i) : SV_Target
 			{
 				float2 uv = platformUV(i.uv);
-				float time = _Time.y;
 				// マスク類の取得
 				fixed4 mask = platformTex(_MaskTex, uv);
 
 				// カードを歪ませて取得
-				float2 card_uv = uv + float2(sin(time * _WaveValue2.y + uv.x * _WaveValue1.x + uv.y * _WaveValue1.y), cos(time * _WaveValue2.y + uv.x * _WaveValue1.z + uv.y * _WaveValue1.w)) * _WaveValue2.x * useMask(mask, _WaveUseMask);
+				float2 card_uv = uv + float2(sin(_Time.y * _WaveValue2.y + uv.x * _WaveValue1.x + uv.y * _WaveValue1.y), cos(_Time.y * _WaveValue2.y + uv.x * _WaveValue1.z + uv.y * _WaveValue1.w)) * _WaveValue2.x * useMask(mask, _WaveUseMask);
 				fixed4 card_col = platformTex(_MainTex, card_uv);
 
 				fixed4 effect1 = FETCH_TEXTURE(1);
