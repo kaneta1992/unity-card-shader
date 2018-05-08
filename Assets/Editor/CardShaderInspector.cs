@@ -214,7 +214,7 @@ public class CardShaderInspector : MaterialEditor
             EditorGUI.BeginChangeCheck();
             // 1段下げてUIを表示
             EditorGUI.indentLevel = 1;
-            MaterialProperty prop = GetMaterialProperty(targets, "_Blend" + numberString + "Tex");
+            MaterialProperty prop = GetMaterialProperty(targets, "_Effect" + numberString + "Tex");
             TextureProperty(prop, "Texture(RGBA)", true);
             showUseMask(index);
             showCoord(index);

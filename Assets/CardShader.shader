@@ -4,11 +4,11 @@
 	{
 		[NoScaleOffset] _MainTex ("Card", 2D) = "white" {}
 		[NoScaleOffset] _MaskTex ("Mask", 2D) = "white" {}
-		_Blend1Tex ("Blend1", 2D) = "black" {}
-		_Blend2Tex ("Blend2", 2D) = "black" {}
-		_Blend3Tex ("Blend3", 2D) = "black" {}
-		_Blend4Tex ("Blend4", 2D) = "black" {}
-		_Blend5Tex ("Blend5", 2D) = "black" {}
+		_Effect1Tex ("Effect1", 2D) = "black" {}
+		_Effect2Tex ("Effect2", 2D) = "black" {}
+		_Effect3Tex ("Effect3", 2D) = "black" {}
+		_Effect4Tex ("Effect4", 2D) = "black" {}
+		_Effect5Tex ("Effect5", 2D) = "black" {}
 		_Effect1BlendMode ("Effect1BlendMode", Vector) = (1,0,0,0)
 		_Effect2BlendMode ("Effect2BlendMode", Vector) = (1,0,0,0)
 		_Effect3BlendMode ("Effect3BlendMode", Vector) = (1,0,0,0)
@@ -56,9 +56,9 @@
 			#define PI 3.14159265358979323846
 
 			#define FETCH_TEXTURE(id)\
-				platformTex(_Blend##id##Tex, lerp(\
-					calcUV(uv, _Effect##id##Coord1.xy, _Blend##id##Tex_ST, _Effect##id##Coord2.x, _Effect##id##Coord1.zw, _Effect##id##Coord2.y),\
-					polar(uv, _Blend##id##Tex_ST, _Effect##id##Coord2, _Effect##id##Coord1.zw, _Effect##id##Coord2.y), _Effect##id##Coord2.z))
+				platformTex(_Effect##id##Tex, lerp(\
+					calcUV(uv, _Effect##id##Coord1.xy, _Effect##id##Tex_ST, _Effect##id##Coord2.x, _Effect##id##Coord1.zw, _Effect##id##Coord2.y),\
+					polar(uv, _Effect##id##Tex_ST, _Effect##id##Coord2, _Effect##id##Coord1.zw, _Effect##id##Coord2.y), _Effect##id##Coord2.z))
 
 			#define BLEND_COLOR(name, id)\
 				blendColor(result, name * pulse(uv, _Effect##id##Pulse.x, _Effect##id##Pulse.yz, _Effect##id##Pulse.w), useMask(mask, _Effect##id##UseMask), _Effect##id##BlendMode)
@@ -79,20 +79,20 @@
 
 			sampler2D _MaskTex;
 
-			sampler2D _Blend1Tex;
-			float4 _Blend1Tex_ST;
+			sampler2D _Effect1Tex;
+			float4 _Effect1Tex_ST;
 
-			sampler2D _Blend2Tex;
-			float4 _Blend2Tex_ST;
+			sampler2D _Effect2Tex;
+			float4 _Effect2Tex_ST;
 
-			sampler2D _Blend3Tex;
-			float4 _Blend3Tex_ST;
+			sampler2D _Effect3Tex;
+			float4 _Effect3Tex_ST;
 
-			sampler2D _Blend4Tex;
-			float4 _Blend4Tex_ST;
+			sampler2D _Effect4Tex;
+			float4 _Effect4Tex_ST;
 
-			sampler2D _Blend5Tex;
-			float4 _Blend5Tex_ST;
+			sampler2D _Effect5Tex;
+			float4 _Effect5Tex_ST;
 
 			float4 _Effect1BlendMode;
 			float4 _Effect2BlendMode;
