@@ -37,11 +37,6 @@
 		_WaveValue1 ("_WaveValue1", Vector) = (0,0,0,0)
 		_WaveValue2 ("_WaveValue2", Vector) = (0,0,0,0)
 		_WaveUseMask ("_WaveUseMask", Vector) = (0,0,0,0)
-		//_Effect1Coord3 ("_Effect1Coord3", Vector) = (0,0,0,0)
-		//_Effect2Coord3 ("_Effect2Coord3", Vector) = (0,0,0,0)
-		//_Effect3Coord3 ("_Effect3Coord3", Vector) = (0,0,0,0)
-		//_Effect4Coord3 ("_Effect4Coord3", Vector) = (0,0,0,0)
-		//_Effect5Coord3 ("_Effect5Coord3", Vector) = (0,0,0,0)
 	}
 	SubShader
 	{
@@ -59,6 +54,14 @@
 			#define DIRECTX
 			#define ZERO2 float2(0.0, 0.0)
 			#define PI 3.14159265358979323846
+
+			#define FETCH_TEXTURE(id)\
+				platformTex(_Blend##id##Tex, lerp(\
+					calcUV(uv, _Effect##id##Coord1.xy, _Blend##id##Tex_ST, _Effect##id##Coord2.x, _Effect##id##Coord1.zw, _Effect##id##Coord2.y, time),\
+					polar(uv, _Blend##id##Tex_ST, _Effect##id##Coord2, _Effect##id##Coord1.zw, _Effect##id##Coord2.y, time), _Effect##id##Coord2.z))
+
+			#define BLEND_COLOR(name, id)\
+				blendColor(result, name * pulse(uv, _Effect##id##Pulse.x, _Effect##id##Pulse.yz, _Effect##id##Pulse.w), useMask(mask, _Effect##id##UseMask), _Effect##id##BlendMode)
 
 			struct appdata
 			{
@@ -120,17 +123,11 @@
 			float4 _WaveValue1;
 			float4 _WaveValue2;
 			float4 _WaveUseMask;
-			//float4 _Effect1Coord3;
-			//float4 _Effect2Coord3;
-			//float4 _Effect3Coord3;
-			//float4 _Effect4Coord3;
-			//float4 _Effect5Coord3;
 			
 			v2f vert (appdata v)
 			{
 				v2f o;
 				o.vertex = UnityObjectToClipPos(v.vertex);
-				//o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 				o.uv = v.uv;
 				return o;
 			}
@@ -153,11 +150,6 @@
 			}
 
 			float2 calcUV(float2 uv, float2 origin, float4 tiling_offset, float angle, float2 dtVec, float dtAngle, float time) {
-				//float a = angle + dtAngle * time;
-				//float2 vec = rotate(dtVec * time, -a);
-				//float2 scrollUV = uv - dtVec;
-				//float2 rotateUV = rotate(scrollUV - pos, a) * scale + origin;
-				//return rotateUV;
 				return rotate(uv - tiling_offset.zw, angle + dtAngle * time) * tiling_offset.xy + origin - dtVec * time;
 			}
 
@@ -195,47 +187,18 @@
 				float2 card_uv = uv + float2(sin(time * _WaveValue2.y + uv.x * _WaveValue1.x + uv.y * _WaveValue1.y), cos(time * _WaveValue2.y + uv.x * _WaveValue1.z + uv.y * _WaveValue1.w)) * _WaveValue2.x * useMask(mask, _WaveUseMask);
 				fixed4 card_col = platformTex(_MainTex, card_uv);
 
-				// エフェクト1(桜)を取得する
-				float2 effect1_polar = polar(uv, _Blend1Tex_ST, _Effect1Coord2, _Effect1Coord1.zw, _Effect1Coord2.y, time);
-				float2 effect1_uv = calcUV(uv, _Effect1Coord1.xy, _Blend1Tex_ST, _Effect1Coord2.x, _Effect1Coord1.zw, _Effect1Coord2.y, time);	// スクロール
-				fixed4 effect1 = platformTex(_Blend1Tex, lerp(effect1_uv, effect1_polar, _Effect1Coord2.z));
-
-				// エフェクト2(桜)を取得する
-				float2 effect2_polar = polar(uv, _Blend2Tex_ST, _Effect2Coord2, _Effect2Coord1.zw, _Effect2Coord2.y, time);
-				float2 effect2_uv = calcUV(uv, _Effect2Coord1.xy, _Blend2Tex_ST, _Effect2Coord2.x, _Effect2Coord1.zw, _Effect2Coord2.y, time);					// 回転
-				float4 effect2 = platformTex(_Blend2Tex, lerp(effect2_uv, effect2_polar, _Effect2Coord2.z));
-
-				// エフェクト3(キラキラ)を取得する
-				float2 effect3_polar = polar(uv, _Blend3Tex_ST, _Effect3Coord2, _Effect3Coord1.zw, _Effect3Coord2.y, time);
-				float2 effect3_uv = calcUV(uv, _Effect3Coord1.xy, _Blend3Tex_ST, _Effect3Coord2.x, _Effect3Coord1.zw, _Effect3Coord2.y, time);					// スクロール
-				fixed4 effect3 = platformTex(_Blend3Tex, lerp(effect3_uv, effect3_polar, _Effect3Coord2.z));
-
-				// エフェクト4(太陽)を取得する
-				float2 effect4_polar = polar(uv, _Blend4Tex_ST, _Effect4Coord2, _Effect4Coord1.zw, _Effect4Coord2.y, time);
-				float2 effect4_uv = calcUV(uv, _Effect4Coord1.xy, _Blend4Tex_ST, _Effect4Coord2.x, _Effect4Coord1.zw, _Effect4Coord2.y, time);		// 回転 + 原点移動
-				float4 effect4 = platformTex(_Blend4Tex, lerp(effect4_uv, effect4_polar, _Effect4Coord2.z));
-				
-				// エフェクト5(フレア)を取得する
-				float2 effect5_polar = polar(uv, _Blend5Tex_ST, _Effect5Coord2, _Effect5Coord1.zw, _Effect5Coord2.y, time);
-				float2 effect5_uv = calcUV(uv, _Effect5Coord1.xy, _Blend5Tex_ST, _Effect5Coord2.x, _Effect5Coord1.zw, _Effect5Coord2.y, time);								// 通常
-				float4 effect5 = platformTex(_Blend5Tex, lerp(effect5_uv, effect5_polar, _Effect5Coord2.z));
+				fixed4 effect1 = FETCH_TEXTURE(1);
+				fixed4 effect2 = FETCH_TEXTURE(2);
+				fixed4 effect3 = FETCH_TEXTURE(3);
+				fixed4 effect4 = FETCH_TEXTURE(4);
+				fixed4 effect5 = FETCH_TEXTURE(5);
 
 				fixed3 result = card_col.rgb;
-
-				// エフェクト1を合成する
-				result = blendColor(result, effect1 * pulse(uv, _Effect1Pulse.x, _Effect1Pulse.yz, _Effect1Pulse.w), useMask(mask, _Effect1UseMask), _Effect1BlendMode);				// ブレンド
-
-				// エフェクト2を合成する
-				result = blendColor(result, effect2 * pulse(uv, _Effect2Pulse.x, _Effect2Pulse.yz, _Effect2Pulse.w), useMask(mask, _Effect2UseMask), _Effect2BlendMode);				// ブレンド
-				
-				// エフェクト3を合成する
-				result = blendColor(result, effect3 * pulse(uv, _Effect3Pulse.x, _Effect3Pulse.yz, _Effect3Pulse.w), useMask(mask, _Effect3UseMask), _Effect3BlendMode);	//加算 + パルス
-								
-				// エフェクト4を合成する
-				result = blendColor(result, effect4 * pulse(uv, _Effect4Pulse.x, _Effect4Pulse.yz, _Effect4Pulse.w), useMask(mask, _Effect4UseMask), _Effect4BlendMode);				//加算
-								
-				// エフェクト5を合成する
-				result = blendColor(result, effect5 * pulse(uv, _Effect5Pulse.x, _Effect5Pulse.yz, _Effect5Pulse.w), useMask(mask, _Effect5UseMask), _Effect5BlendMode);				//加算 + パルス
+				result = BLEND_COLOR(effect1, 1);
+				result = BLEND_COLOR(effect2, 2);
+				result = BLEND_COLOR(effect3, 3);
+				result = BLEND_COLOR(effect4, 4);
+				result = BLEND_COLOR(effect5, 5);
 
 				return fixed4(result, 1.0);
 			}
