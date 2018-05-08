@@ -57,8 +57,8 @@
 
 			#define FETCH_TEXTURE(id)\
 				platformTex(_Effect##id##Tex, lerp(\
-					calcUV(uv, _Effect##id##Coord1.xy, _Effect##id##Tex_ST, _Effect##id##Coord2.x, _Effect##id##Coord1.zw, _Effect##id##Coord2.y),\
-					polar(uv, _Effect##id##Tex_ST, _Effect##id##Coord2, _Effect##id##Coord1.zw, _Effect##id##Coord2.y), _Effect##id##Coord2.z))
+					uvCoord(uv, _Effect##id##Coord1.xy, _Effect##id##Tex_ST, _Effect##id##Coord2.x, _Effect##id##Coord1.zw, _Effect##id##Coord2.y),\
+					polarCoord(uv, _Effect##id##Tex_ST, _Effect##id##Coord2, _Effect##id##Coord1.zw, _Effect##id##Coord2.y), _Effect##id##Coord2.z))
 
 			#define BLEND_COLOR(name, id)\
 				blendColor(result, name * pulse(uv, _Effect##id##Pulse.x, _Effect##id##Pulse.yz, _Effect##id##Pulse.w), useMask(mask, _Effect##id##UseMask), _Effect##id##BlendMode)
@@ -94,6 +94,7 @@
 			sampler2D _Effect5Tex;
 			float4 _Effect5Tex_ST;
 
+			// 本当は配列で送りたい：（
 			float4 _Effect1BlendMode;
 			float4 _Effect2BlendMode;
 			float4 _Effect3BlendMode;
@@ -149,27 +150,27 @@
 				return tex2D(tex, platformUV(uv));
 			}
 
-			float2 calcUV(float2 uv, float2 origin, float4 tiling_offset, float angle, float2 dtVec, float dtAngle) {
-				return rotate(uv - tiling_offset.zw, angle + dtAngle * _Time.y) * tiling_offset.xy + origin - dtVec * _Time.y;
+			float2 uvCoord(float2 uv, float2 origin, float4 tilingOffset, float angle, float2 dtVec, float dtAngle) {
+				return rotate(uv - tilingOffset.zw, angle + dtAngle * _Time.y) * tilingOffset.xy + origin - dtVec * _Time.y;
 			}
 
-			float2 polar(float2 uv, float4 tiling_offset, float angle, float2 dtVec, float dtAngle)
+			float2 polarCoord(float2 uv, float4 tilingOffset, float angle, float2 dtVec, float dtAngle)
 			{
-				uv = rotate((uv - tiling_offset.zw), angle + dtAngle * _Time.y) * tiling_offset.xy;
+				uv = rotate((uv - tilingOffset.zw), angle + dtAngle * _Time.y) * tilingOffset.xy;
 				float distance = length(uv) - _Time.y * dtVec.y;
 				float theta = ((atan2(uv.y, uv.x)) / (PI*2) + 0.5) - _Time.y * dtVec.x;
 				return float2(theta, distance);
 			}
 
-			float pulse(float2 uv, float freq, float2 pulsePhase, float power) {
-				float s = sin(_Time.y * freq + uv.x * pulsePhase.x + uv.y * pulsePhase.y) * 0.5 + 0.5;
-				return 1.0 + s * power;
+			float pulse(float2 uv, float freq, float2 offset, float intensity) {
+				float s = sin(_Time.y * freq + uv.x * offset.x + uv.y * offset.y) * 0.5 + 0.5;
+				return 1.0 + s * intensity;
 			}
 
-			fixed3 blendColor(fixed3 src, fixed4 dest, float blend, float4 type) {
+			fixed3 blendColor(fixed3 src, fixed4 dest, float blend, float4 typeVec) {
 				float alpha = dest.a * blend;
 				fixed3 blendedDest = dest.rgb * alpha;
-				return mul(type, float4x4(lerp(src, dest, alpha), 0, src + blendedDest, 0, src - blendedDest, 0, src * blendedDest, 0));	// GLESでは非正方行列が使えないらしい；；
+				return mul(typeVec, fixed4x4(lerp(src, dest, alpha), 0, src + blendedDest, 0, src - blendedDest, 0, src * blendedDest, 0)).rgb;	// GLESでは非正方行列が使えないらしい；；
 			}
 
 			fixed useMask(fixed4 mask, float4 useVec) {
@@ -186,18 +187,12 @@
 				float2 card_uv = uv + float2(sin(_Time.y * _WaveValue2.y + uv.x * _WaveValue1.x + uv.y * _WaveValue1.y), cos(_Time.y * _WaveValue2.y + uv.x * _WaveValue1.z + uv.y * _WaveValue1.w)) * _WaveValue2.x * useMask(mask, _WaveUseMask);
 				fixed4 card_col = platformTex(_MainTex, card_uv);
 
-				fixed4 effect1 = FETCH_TEXTURE(1);
-				fixed4 effect2 = FETCH_TEXTURE(2);
-				fixed4 effect3 = FETCH_TEXTURE(3);
-				fixed4 effect4 = FETCH_TEXTURE(4);
-				fixed4 effect5 = FETCH_TEXTURE(5);
-
 				fixed3 result = card_col.rgb;
-				result = BLEND_COLOR(effect1, 1);
-				result = BLEND_COLOR(effect2, 2);
-				result = BLEND_COLOR(effect3, 3);
-				result = BLEND_COLOR(effect4, 4);
-				result = BLEND_COLOR(effect5, 5);
+				result = BLEND_COLOR(FETCH_TEXTURE(1), 1);
+				result = BLEND_COLOR(FETCH_TEXTURE(2), 2);
+				result = BLEND_COLOR(FETCH_TEXTURE(3), 3);
+				result = BLEND_COLOR(FETCH_TEXTURE(4), 4);
+				result = BLEND_COLOR(FETCH_TEXTURE(5), 5);
 
 				return fixed4(result, 1.0);
 			}
