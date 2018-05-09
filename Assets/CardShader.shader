@@ -52,7 +52,6 @@
 			#include "UnityCG.cginc"
 
 			#define DIRECTX
-			#define ZERO2 float2(0.0, 0.0)
 			#define PI 3.14159265358979323846
 
 			#define FETCH_TEXTURE(id)\
@@ -60,8 +59,8 @@
 					uvCoord(uv, _Effect##id##Coord1.xy, _Effect##id##Tex_ST, _Effect##id##Coord2.x, _Effect##id##Coord1.zw, _Effect##id##Coord2.y),\
 					polarCoord(uv, _Effect##id##Tex_ST, _Effect##id##Coord2, _Effect##id##Coord1.zw, _Effect##id##Coord2.y), _Effect##id##Coord2.z))
 
-			#define BLEND_COLOR(name, id)\
-				blendColor(result, name * pulse(uv, _Effect##id##Pulse.x, _Effect##id##Pulse.yz, _Effect##id##Pulse.w), useMask(mask, _Effect##id##UseMask), _Effect##id##BlendMode)
+			#define BLEND_COLOR(src, dest, id)\
+				blendColor(src, dest * pulse(uv, _Effect##id##Pulse.x, _Effect##id##Pulse.yz, _Effect##id##Pulse.w), useMask(mask, _Effect##id##UseMask), _Effect##id##BlendMode)
 
 			struct appdata
 			{
@@ -158,7 +157,7 @@
 			{
 				uv = rotate((uv - tiling_offset.zw), angle + dt_angle * _Time.y) * tiling_offset.xy;
 				float distance = length(uv) - _Time.y * dt_vec.y;
-				float theta = ((atan2(uv.y, uv.x)) / (PI*2) + 0.5) - _Time.y * dt_vec.x;
+				float theta = ((atan2(uv.y, uv.x)) / (PI*2.0) + 0.5) - _Time.y * dt_vec.x;
 				return float2(theta, distance);
 			}
 
@@ -188,11 +187,11 @@
 				fixed4 card_col = platformTex(_MainTex, card_uv);
 
 				fixed3 result = card_col.rgb;
-				result = BLEND_COLOR(FETCH_TEXTURE(1), 1);
-				result = BLEND_COLOR(FETCH_TEXTURE(2), 2);
-				result = BLEND_COLOR(FETCH_TEXTURE(3), 3);
-				result = BLEND_COLOR(FETCH_TEXTURE(4), 4);
-				result = BLEND_COLOR(FETCH_TEXTURE(5), 5);
+				result = BLEND_COLOR(result, FETCH_TEXTURE(1), 1);
+				result = BLEND_COLOR(result, FETCH_TEXTURE(2), 2);
+				result = BLEND_COLOR(result, FETCH_TEXTURE(3), 3);
+				result = BLEND_COLOR(result, FETCH_TEXTURE(4), 4);
+				result = BLEND_COLOR(result, FETCH_TEXTURE(5), 5);
 
 				return fixed4(result, 1.0);
 			}
