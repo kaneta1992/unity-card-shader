@@ -150,15 +150,15 @@
 				return tex2D(tex, platformUV(uv));
 			}
 
-			float2 uvCoord(float2 uv, float2 origin, float4 tilingOffset, float angle, float2 dtVec, float dtAngle) {
-				return rotate(uv - tilingOffset.zw, angle + dtAngle * _Time.y) * tilingOffset.xy + origin - dtVec * _Time.y;
+			float2 uvCoord(float2 uv, float2 origin, float4 tiling_offset, float angle, float2 dt_vec, float dt_angle) {
+				return rotate(uv - tiling_offset.zw, angle + dt_angle * _Time.y) * tiling_offset.xy + origin - dt_vec * _Time.y;
 			}
 
-			float2 polarCoord(float2 uv, float4 tilingOffset, float angle, float2 dtVec, float dtAngle)
+			float2 polarCoord(float2 uv, float4 tiling_offset, float angle, float2 dt_vec, float dt_angle)
 			{
-				uv = rotate((uv - tilingOffset.zw), angle + dtAngle * _Time.y) * tilingOffset.xy;
-				float distance = length(uv) - _Time.y * dtVec.y;
-				float theta = ((atan2(uv.y, uv.x)) / (PI*2) + 0.5) - _Time.y * dtVec.x;
+				uv = rotate((uv - tiling_offset.zw), angle + dt_angle * _Time.y) * tiling_offset.xy;
+				float distance = length(uv) - _Time.y * dt_vec.y;
+				float theta = ((atan2(uv.y, uv.x)) / (PI*2) + 0.5) - _Time.y * dt_vec.x;
 				return float2(theta, distance);
 			}
 
@@ -167,14 +167,14 @@
 				return 1.0 + s * intensity;
 			}
 
-			fixed3 blendColor(fixed3 src, fixed4 dest, float blend, float4 typeVec) {
+			fixed3 blendColor(fixed3 src, fixed4 dest, float blend, float4 mode_vec) {
 				float alpha = dest.a * blend;
-				fixed3 blendedDest = dest.rgb * alpha;
-				return mul(typeVec, fixed4x4(lerp(src, dest, alpha), 0, src + blendedDest, 0, src - blendedDest, 0, src * blendedDest, 0)).rgb;	// GLESでは非正方行列が使えないらしい；；
+				fixed3 blended_dest = dest.rgb * alpha;
+				return mul(mode_vec, fixed4x4(lerp(src, dest, alpha), 0, src + blended_dest, 0, src - blended_dest, 0, src * blended_dest, 0)).rgb;	// GLESでは非正方行列が使えないらしい；；
 			}
 
-			fixed useMask(fixed4 mask, float4 useVec) {
-				return 1.0 - dot(mask, useVec);
+			fixed useMask(fixed4 mask, float4 use_vec) {
+				return 1.0 - dot(mask, use_vec);
 			}
 			
 			fixed4 frag (v2f i) : SV_Target
