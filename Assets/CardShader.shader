@@ -157,7 +157,7 @@
 			{
 				uv = rotate((uv - tiling_offset.zw), angle + dt_angle * _Time.y) * tiling_offset.xy;
 				float distance = length(uv) - _Time.y * dt_vec.y;
-				float theta = ((atan2(uv.y, uv.x)) / (PI*2.0) + 0.5) - _Time.y * dt_vec.x;
+				float theta = (atan2(uv.y, uv.x) / (PI*2.0) + 0.5) - _Time.y * dt_vec.x;
 				return float2(theta, distance);
 			}
 
