@@ -73,15 +73,15 @@ public class CardShaderInspector : MaterialEditor
         Vector4 data = pulse.vectorValue;
 
         float freq = data.x;
-        Vector2 phase = new Vector2(data.y, data.z);
-        float power = data.w;
+        Vector2 offset = new Vector2(data.y, data.z);
+        float intensity = data.w;
         freq = EditorGUILayout.FloatField("freq", freq);
-        phase = EditorGUILayout.Vector2Field("phase", phase);
-        power = EditorGUILayout.FloatField("power", power);
+        offset = EditorGUILayout.Vector2Field("offset", offset);
+        intensity = EditorGUILayout.FloatField("intensity", intensity);
 
         if (EditorGUI.EndChangeCheck())
         {
-            material.SetVector("_Effect" + numberString + "Pulse", new Vector4(freq, phase.x, phase.y, power));
+            material.SetVector("_Effect" + numberString + "Pulse", new Vector4(freq, offset.x, offset.y, intensity));
             EditorUtility.SetDirty(material);
         }
         EditorGUI.indentLevel--;
@@ -214,7 +214,7 @@ public class CardShaderInspector : MaterialEditor
             EditorGUI.BeginChangeCheck();
             // 1段下げてUIを表示
             EditorGUI.indentLevel = 1;
-            MaterialProperty prop = GetMaterialProperty(targets, "_Blend" + numberString + "Tex");
+            MaterialProperty prop = GetMaterialProperty(targets, "_Effect" + numberString + "Tex");
             TextureProperty(prop, "Texture(RGBA)", true);
             showUseMask(index);
             showCoord(index);
